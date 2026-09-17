@@ -15,6 +15,7 @@
     --peach-1: #ffd3a8; --peach-2: #ffab6b; --peach-3: #f5893a;
     --lilac-1: #e4c9f2; --lilac-2: #c893e0; --lilac-3: #a35fc4;
     --cream-1: #fff6e6; --cream-2: #ffe9bd; --cream-3: #f0c975;
+    --carn-1: #ff6f91; --carn-2: #e63963; --carn-3: #b81846;
     --center: #f6c945;
     --center-dark: #e0a92a;
     --ink: #5a3a44;
@@ -37,6 +38,7 @@
       --peach-1: #e8b783; --peach-2: #e0924f; --peach-3: #c96f2e;
       --lilac-1: #c6a8d9; --lilac-2: #a877c2; --lilac-3: #8347a3;
       --cream-1: #f0e2c2; --cream-2: #e3cd94; --cream-3: #cba85c;
+      --carn-1: #e0708c; --carn-2: #c23a5c; --carn-3: #971f42;
       --center: #f2c14e; --center-dark: #d69f2f;
       --ink: #f6e4ea; --ink-soft: #cfa9b6;
       --replay-bg: rgba(255,255,255,0.08); --replay-fg: #f2d3dd;
@@ -54,6 +56,7 @@
     --peach-1: #e8b783; --peach-2: #e0924f; --peach-3: #c96f2e;
     --lilac-1: #c6a8d9; --lilac-2: #a877c2; --lilac-3: #8347a3;
     --cream-1: #f0e2c2; --cream-2: #e3cd94; --cream-3: #cba85c;
+    --carn-1: #e0708c; --carn-2: #c23a5c; --carn-3: #971f42;
     --center: #f2c14e; --center-dark: #d69f2f;
     --ink: #f6e4ea; --ink-soft: #cfa9b6;
     --replay-bg: rgba(255,255,255,0.08); --replay-fg: #f2d3dd;
@@ -299,6 +302,8 @@
         <g id="flower3"></g>
         <g id="flower4"></g>
         <g id="flower5"></g>
+        <g id="flower6"></g>
+        <g id="flower7"></g>
 
         <g id="ribbonGroup"></g>
         <g id="hearts"></g>
@@ -306,8 +311,8 @@
     </div>
 
     <div class="message">
-      <h1>For you 💐</h1>
-      <p>I know you're upset with me, and I'm truly sorry.<br>A whole bouquet while I make it right, for real this time.</p>
+      <h1>For WYH 💗💐</h1>
+      <p>I hope you really like this bouquet.</p>
     </div>
 
     <button class="replay" id="replayBtn">Bloom again</button>
@@ -364,7 +369,7 @@
     });
     g.appendChild(stem);
 
-    const rings = [
+    const rings = opts.rings || [
       { count: petalCount.outer, len: 42*scale, width: 14*scale, color: colors[1], ruffles: 6, delay: 0.35 },
       { count: petalCount.outer, len: 34*scale, width: 12*scale, color: colors[1], ruffles: 5, delay: 0.55, offset: 15 },
       { count: petalCount.inner, len: 26*scale, width: 10*scale, color: colors[0], ruffles: 5, delay: 0.8 },
@@ -493,6 +498,17 @@
     [loopL, loopR, band, knot, tailL, tailR].forEach(n=>g.appendChild(n));
   }
 
+  function carnationRings(headY, scale, colors, delayBase){
+    // Carnations: many densely-ruffled petal layers for a frilled, full look
+    return [
+      { count: 12, len: 30*scale, width: 11*scale, color: colors[1], ruffles: 9, delay: 0.35 },
+      { count: 11, len: 25*scale, width: 9.5*scale, color: colors[1], ruffles: 8, delay: 0.5, offset: 16 },
+      { count: 10, len: 20*scale, width: 8*scale, color: colors[0], ruffles: 8, delay: 0.65, offset: 8 },
+      { count: 9,  len: 15*scale, width: 6.5*scale, color: colors[0], ruffles: 7, delay: 0.8, offset: 20 },
+      { count: 8,  len: 10*scale, width: 5*scale, color: colors[2], ruffles: 6, delay: 0.95 }
+    ];
+  }
+
   function buildAll(){
     document.getElementById('hearts').innerHTML = '';
     heartTimers.forEach(t=>clearTimeout(t));
@@ -548,6 +564,25 @@
       swayDelay: 4.6, swayDur: 4.9
     });
 
+    // Two extra carnations tucked in front, low and full, for "more carnation"
+    buildFlower('flower6', {
+      startX: wrapPoint[0], startY: wrapPoint[1], cx: 175, headY: 235, scale: 0.58,
+      colors: ['var(--carn-1)','var(--carn-2)','var(--carn-3)'],
+      stemColor: 'var(--stem-dark)', delayBase: 1.6,
+      rings: carnationRings(235, 0.58, ['var(--carn-1)','var(--carn-2)','var(--carn-3)'], 1.6),
+      sparkles: [[-22,-6],[20,-16]],
+      swayDelay: 4.75, swayDur: 4.4
+    });
+
+    buildFlower('flower7', {
+      startX: wrapPoint[0], startY: wrapPoint[1], cx: 345, headY: 235, scale: 0.58,
+      colors: ['var(--carn-1)','var(--carn-2)','var(--carn-3)'],
+      stemColor: 'var(--stem-dark)', delayBase: 1.75,
+      rings: carnationRings(235, 0.58, ['var(--carn-1)','var(--carn-2)','var(--carn-3)'], 1.75),
+      sparkles: [[22,-6],[-20,-16]],
+      swayDelay: 4.9, swayDur: 4.5
+    });
+
     buildRibbon();
 
     function spawnHeart(){
@@ -583,7 +618,7 @@
   function spawnFallingPetals(){
     const layer = document.getElementById('petalFallLayer');
     layer.innerHTML = '';
-    const colorVars = ['--pink-2','--rose-2','--peach-2','--lilac-2'];
+    const colorVars = ['--pink-2','--rose-2','--peach-2','--lilac-2','--carn-2'];
     for(let i=0;i<20;i++){
       const p = document.createElement('div');
       p.className = 'petal-fall';
