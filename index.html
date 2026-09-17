@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A bouquet for you</title>
+<style>
+  :root{
+    --bg: #fbeef0;
+    --bg-2: #f6dfe4;
+    --stem: #6f9a6e;
+    --stem-dark: #4f7a52;
+    --pink-1: #f6a6c1; --pink-2: #ef83ab; --pink-3: #e75d94;
+    --rose-1: #f2b6c9; --rose-2: #e0507e; --rose-3: #c23361;
+    --peach-1: #ffd3a8; --peach-2: #ffab6b; --peach-3: #f5893a;
+    --lilac-1: #e4c9f2; --lilac-2: #c893e0; --lilac-3: #a35fc4;
+    --cream-1: #fff6e6; --cream-2: #ffe9bd; --cream-3: #f0c975;
+    --center: #f6c945;
+    --center-dark: #e0a92a;
+    --ink: #5a3a44;
+    --ink-soft: #8a6570;
+    --replay-bg: rgba(255,255,255,0.6);
+    --replay-fg: #7a4a58;
+    --petal-drift: rgba(239,131,171,0.55);
+    --paper: #f3e1c8;
+    --paper-dark: #d9bd93;
+    --ribbon: #c23361;
+    --ribbon-dark: #9c2450;
+    --star: #ffe8a3;
+  }
+  :root:not([data-theme="light"]){
+    @media (prefers-color-scheme: dark){
+      --bg: #241621; --bg-2: #34202f;
+      --stem: #5a8c5f; --stem-dark: #3e6842;
+      --pink-1: #e88bb0; --pink-2: #e06aa0; --pink-3: #d1447f;
+      --rose-1: #dd93aa; --rose-2: #c85a83; --rose-3: #a43a63;
+      --peach-1: #e8b783; --peach-2: #e0924f; --peach-3: #c96f2e;
+      --lilac-1: #c6a8d9; --lilac-2: #a877c2; --lilac-3: #8347a3;
+      --cream-1: #f0e2c2; --cream-2: #e3cd94; --cream-3: #cba85c;
+      --center: #f2c14e; --center-dark: #d69f2f;
+      --ink: #f6e4ea; --ink-soft: #cfa9b6;
+      --replay-bg: rgba(255,255,255,0.08); --replay-fg: #f2d3dd;
+      --petal-drift: rgba(224,106,160,0.5);
+      --paper: #4a3a2c; --paper-dark: #2f2419;
+      --ribbon: #d1447f; --ribbon-dark: #a43a63;
+      --star: #ffdb7a;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg: #241621; --bg-2: #34202f;
+    --stem: #5a8c5f; --stem-dark: #3e6842;
+    --pink-1: #e88bb0; --pink-2: #e06aa0; --pink-3: #d1447f;
+    --rose-1: #dd93aa; --rose-2: #c85a83; --rose-3: #a43a63;
+    --peach-1: #e8b783; --peach-2: #e0924f; --peach-3: #c96f2e;
+    --lilac-1: #c6a8d9; --lilac-2: #a877c2; --lilac-3: #8347a3;
+    --cream-1: #f0e2c2; --cream-2: #e3cd94; --cream-3: #cba85c;
+    --center: #f2c14e; --center-dark: #d69f2f;
+    --ink: #f6e4ea; --ink-soft: #cfa9b6;
+    --replay-bg: rgba(255,255,255,0.08); --replay-fg: #f2d3dd;
+    --petal-drift: rgba(224,106,160,0.5);
+    --paper: #4a3a2c; --paper-dark: #2f2419;
+    --ribbon: #d1447f; --ribbon-dark: #a43a63;
+    --star: #ffdb7a;
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: radial-gradient(circle at 50% 12%, var(--bg-2), var(--bg) 78%);
+    font-family: Georgia, 'Times New Roman', serif;
+    color: var(--ink);
+    overflow:hidden;
+    padding: 24px;
+    position: relative;
+  }
+
+  .petal-fall{
+    position: fixed;
+    top: -5%;
+    width: 10px;
+    height: 10px;
+    border-radius: 60% 0 60% 0;
+    background: var(--petal-drift);
+    opacity: 0;
+    animation-name: fall, sway-fall;
+    animation-timing-function: linear, ease-in-out;
+    animation-iteration-count: infinite, infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+  @keyframes fall{
+    0%{ transform: translateY(-10vh) rotate(0deg); opacity:0; }
+    8%{ opacity: 0.9; }
+    92%{ opacity: 0.7; }
+    100%{ transform: translateY(110vh) rotate(360deg); opacity:0; }
+  }
+  @keyframes sway-fall{
+    0%,100%{ margin-left: 0px; }
+    50%{ margin-left: 40px; }
+  }
+
+  .twinkle{
+    position: fixed;
+    border-radius: 50%;
+    background: var(--star);
+    pointer-events: none;
+    z-index: 0;
+    animation: twinkle-pulse ease-in-out infinite;
+  }
+  @keyframes twinkle-pulse{
+    0%,100%{ opacity: 0.15; transform: scale(0.7); }
+    50%{ opacity: 0.9; transform: scale(1.2); }
+  }
+
+  .stage{
+    width:100%;
+    max-width: 680px;
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap: 2px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .bouquet-wrap{
+    width: 100%;
+    max-width: 580px;
+    aspect-ratio: 1.4 / 1.05;
+    position:relative;
+  }
+
+  svg{ width:100%; height:100%; overflow:visible; display:block; }
+
+  .paper{
+    opacity:0;
+    transform-box: fill-box;
+    transform-origin: center bottom;
+    transform: scale(0.6);
+    animation: paperPop 0.8s cubic-bezier(.2,.9,.3,1.1) forwards;
+  }
+  @keyframes paperPop{ to{ opacity:1; transform: scale(1); } }
+
+  .ribbon-part{
+    opacity:0;
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: scale(0.3) rotate(-20deg);
+    animation: ribbonPop 0.6s cubic-bezier(.3,.9,.4,1.2) forwards;
+  }
+  @keyframes ribbonPop{ to{ opacity:1; transform: scale(1) rotate(0deg); } }
+
+  .foliage{
+    transform-box: fill-box;
+    transform-origin: bottom center;
+    opacity:0;
+    animation: leafGrow 0.9s ease-out forwards;
+  }
+
+  .stem-line{
+    stroke-width: 6;
+    stroke-linecap: round;
+    fill:none;
+    stroke-dasharray: 260;
+    stroke-dashoffset: 260;
+    animation: stemDraw 0.9s ease-out forwards;
+  }
+
+  .petal{
+    transform-box: fill-box;
+    transform-origin: center bottom;
+    transform: scale(0.15) rotate(var(--rot));
+    opacity: 0;
+    animation: petalBloom 0.9s cubic-bezier(.2,.9,.3,1.1) forwards;
+  }
+
+  .center-dot{
+    fill: var(--center);
+    stroke: var(--center-dark);
+    stroke-width: 1.2;
+    opacity:0;
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: scale(0.2);
+    animation: coreAppear 0.6s ease-out forwards;
+  }
+
+  .sparkle{
+    fill: var(--center);
+    opacity:0;
+    animation: sparklePop 1.4s ease-out forwards;
+  }
+
+  .heart{
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: heartFloat 2.8s ease-out forwards;
+  }
+
+  .flower-sway{
+    animation: sway 4.5s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: bottom center;
+  }
+
+  @keyframes stemDraw{ to{ stroke-dashoffset:0; } }
+  @keyframes leafGrow{
+    from{ opacity:0; transform: scale(0) rotate(-10deg); }
+    to{ opacity:1; transform: scale(1) rotate(0deg); }
+  }
+  @keyframes petalBloom{ to{ opacity:1; transform: scale(1) rotate(var(--rot)); } }
+  @keyframes coreAppear{ to{ opacity:1; transform: scale(1); } }
+  @keyframes sparklePop{
+    0%{ opacity:0; transform: scale(0) translateY(0); }
+    35%{ opacity:1; transform: scale(1) translateY(-6px); }
+    100%{ opacity:0; transform: scale(0.6) translateY(-24px); }
+  }
+  @keyframes heartFloat{
+    0%{ opacity:0; transform: scale(0.3) translateY(0); }
+    18%{ opacity:1; transform: scale(1) translateY(-4px); }
+    82%{ opacity:0.9; transform: scale(1) translateY(-46px); }
+    100%{ opacity:0; transform: scale(0.8) translateY(-66px); }
+  }
+  @keyframes sway{
+    0%,100%{ transform: rotate(-1.6deg); }
+    50%{ transform: rotate(1.6deg); }
+  }
+
+  .message{
+    margin-top: 0px;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeUp 1s ease-out forwards;
+    animation-delay: 3.6s;
+  }
+  @keyframes fadeUp{ to{ opacity:1; transform:none; } }
+
+  .message h1{
+    font-size: clamp(1.6rem, 5vw, 2.2rem);
+    font-weight: 600;
+    margin: 0 0 8px;
+    letter-spacing: 0.01em;
+  }
+  .message p{
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+    margin: 0 auto;
+    max-width: 34ch;
+    line-height: 1.55;
+  }
+
+  .replay{
+    margin-top: 16px;
+    opacity:0;
+    animation: fadeUp 1s ease-out forwards;
+    animation-delay: 4s;
+    background: var(--replay-bg);
+    color: var(--replay-fg);
+    border: none;
+    padding: 10px 22px;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.2s ease;
+  }
+  .replay:hover{ transform: translateY(-1px); }
+  .replay:focus-visible{ outline: 2px solid var(--rose-3); outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce){
+    .foliage, .petal, .center-dot, .message, .replay, .stem-line, .sparkle, .heart,
+    .petal-fall, .paper, .ribbon-part, .twinkle{
+      animation-duration: 0.01s !important;
+      animation-delay: 0s !important;
+    }
+    .flower-sway{ animation: none !important; }
+  }
+</style>
+</head>
+<body>
+  <div id="petalFallLayer"></div>
+  <div id="twinkleLayer"></div>
+
+  <div class="stage">
+    <div class="bouquet-wrap">
+      <svg id="bouquetSvg" viewBox="0 0 520 380" xmlns="http://www.w3.org/2000/svg">
+        <g id="paperGroup"></g>
+        <g id="foliageGroup"></g>
+
+        <g id="flower1"></g>
+        <g id="flower2"></g>
+        <g id="flower3"></g>
+        <g id="flower4"></g>
+        <g id="flower5"></g>
+
+        <g id="ribbonGroup"></g>
+        <g id="hearts"></g>
+      </svg>
+    </div>
+
+    <div class="message">
+      <h1>For you 💐</h1>
+      <p>I know you're upset with me, and I'm truly sorry.<br>A whole bouquet while I make it right, for real this time.</p>
+    </div>
+
+    <button class="replay" id="replayBtn">Bloom again</button>
+  </div>
+
+<script>
+(function(){
+  const NS = 'http://www.w3.org/2000/svg';
+  const heartTimers = [];
+
+  function el(tag, attrs){
+    const e = document.createElementNS(NS, tag);
+    for(const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  function petalPath(cx, cy, len, width, ruffles){
+    const n = ruffles || 5;
+    const topY = cy - len;
+    const pts = [];
+    for(let i=0;i<=n;i++){
+      const t = i/n;
+      const x = cx - width + t*2*width;
+      const notch = (i % 2 === 0 ? 0 : 1) * len*0.14;
+      const y = topY - (len*0.15) + (Math.sin(t*Math.PI)*len*0.15) - notch;
+      pts.push([x, y]);
+    }
+    let d = `M ${cx} ${cy} C ${cx-width*0.5} ${cy-len*0.35}, ${cx-width*0.95} ${cy-len*0.6}, ${pts[0][0]} ${pts[0][1]}`;
+    for(let i=1;i<pts.length;i++){
+      const prev = pts[i-1], cur = pts[i];
+      const midX = (prev[0]+cur[0])/2, midY = (prev[1]+cur[1])/2;
+      d += ` Q ${prev[0]} ${prev[1]}, ${midX} ${midY}`;
+    }
+    d += ` Q ${pts[n][0]} ${pts[n][1]}, ${pts[n][0]} ${pts[n][1]}`;
+    d += ` C ${cx+width*0.95} ${cy-len*0.6}, ${cx+width*0.5} ${cy-len*0.35}, ${cx} ${cy} Z`;
+    return d;
+  }
+
+  function buildFlower(groupId, opts){
+    const g = document.getElementById(groupId);
+    g.innerHTML = '';
+    g.setAttribute('class', 'flower-sway');
+    g.style.animationDelay = (opts.swayDelay || 0) + 's';
+    g.style.animationDuration = (opts.swayDur || 4.5) + 's';
+
+    const {startX, startY, cx, headY, scale, colors, stemColor, delayBase, petalCount} = opts;
+
+    const stem = el('path', {
+      class: 'stem-line',
+      d: `M ${startX} ${startY} C ${startX + (cx-startX)*0.3} ${startY - (startY-headY)*0.35},
+             ${cx - (cx-startX)*0.15} ${headY + (startY-headY)*0.4},
+             ${cx} ${headY + 14*scale}`,
+      style: `stroke:${stemColor}; animation-delay:${delayBase}s;`
+    });
+    g.appendChild(stem);
+
+    const rings = [
+      { count: petalCount.outer, len: 42*scale, width: 14*scale, color: colors[1], ruffles: 6, delay: 0.35 },
+      { count: petalCount.outer, len: 34*scale, width: 12*scale, color: colors[1], ruffles: 5, delay: 0.55, offset: 15 },
+      { count: petalCount.inner, len: 26*scale, width: 10*scale, color: colors[0], ruffles: 5, delay: 0.8 },
+      { count: petalCount.inner, len: 20*scale, width: 8*scale,  color: colors[0], ruffles: 4, delay: 0.95, offset: 12 },
+      { count: petalCount.core,  len: 13*scale, width: 5.5*scale, color: colors[2], ruffles: 4, delay: 1.1 }
+    ];
+
+    rings.forEach(ring=>{
+      const n = ring.count;
+      for(let i=0;i<n;i++){
+        const angle = (360/n)*i + (ring.offset || 0);
+        const p = el('path', {
+          class: 'petal',
+          d: petalPath(cx, headY, ring.len, ring.width, ring.ruffles),
+          style: `fill:${ring.color}; --rot:${angle}deg; animation-delay:${delayBase+ring.delay+i*0.025}s;`
+        });
+        g.appendChild(p);
+      }
+    });
+
+    const dot = el('circle', {
+      class: 'center-dot',
+      cx: cx, cy: headY, r: 8*scale,
+      style: `animation-delay:${delayBase+1.2}s;`
+    });
+    g.appendChild(dot);
+
+    if(opts.sparkles){
+      opts.sparkles.forEach((pos,i)=>{
+        const c = el('circle', {
+          class: 'sparkle',
+          cx: cx+pos[0], cy: headY+pos[1], r: 2+(i%3),
+          style: `animation-delay:${delayBase+1.5+i*0.1}s;`
+        });
+        g.appendChild(c);
+      });
+    }
+  }
+
+  function buildFoliage(){
+    const g = document.getElementById('foliageGroup');
+    g.innerHTML = '';
+    const base = [260, 335];
+    const sprigs = [
+      { angle: -55, len: 95, delay: 0.05 },
+      { angle: -20, len: 110, delay: 0.15 },
+      { angle: 20,  len: 110, delay: 0.2 },
+      { angle: 55,  len: 95, delay: 0.1 },
+      { angle: 0,   len: 120, delay: 0.25 }
+    ];
+    sprigs.forEach(s=>{
+      const rad = s.angle * Math.PI/180;
+      const tipX = base[0] + Math.sin(rad)*s.len;
+      const tipY = base[1] - Math.cos(rad)*s.len;
+      const ctrlX = base[0] + Math.sin(rad)*s.len*0.5 + Math.cos(rad)*14;
+      const ctrlY = base[1] - Math.cos(rad)*s.len*0.5;
+      const leaf = el('path', {
+        class: 'foliage',
+        d: `M ${base[0]} ${base[1]} Q ${ctrlX} ${ctrlY}, ${tipX} ${tipY}
+            Q ${ctrlX-10} ${ctrlY+6}, ${base[0]} ${base[1]} Z`,
+        style: `fill:var(--stem); animation-delay:${s.delay}s;`
+      });
+      g.appendChild(leaf);
+    });
+  }
+
+  function buildPaper(){
+    const g = document.getElementById('paperGroup');
+    g.innerHTML = '';
+    const cone = el('path', {
+      class: 'paper',
+      d: `M 175 380 L 260 250 L 345 380
+          Q 345 400, 260 405
+          Q 175 400, 175 380 Z`,
+      style: `fill:var(--paper); animation-delay:0s;`
+    });
+    const fold1 = el('path', {
+      class: 'paper',
+      d: `M 205 380 L 260 268 L 235 380 Z`,
+      style: `fill:var(--paper-dark); opacity:0.5; animation-delay:0.05s;`
+    });
+    const fold2 = el('path', {
+      class: 'paper',
+      d: `M 285 380 L 260 268 L 305 380 Z`,
+      style: `fill:var(--paper-dark); opacity:0.35; animation-delay:0.08s;`
+    });
+    g.appendChild(cone);
+    g.appendChild(fold1);
+    g.appendChild(fold2);
+  }
+
+  function buildRibbon(){
+    const g = document.getElementById('ribbonGroup');
+    g.innerHTML = '';
+    const cx = 260, cy = 258;
+    const band = el('rect', {
+      class: 'ribbon-part',
+      x: 235, y: cy-10, width: 50, height: 20, rx: 4,
+      style: `fill:var(--ribbon-dark); animation-delay:0.55s;`
+    });
+    const loopL = el('path', {
+      class: 'ribbon-part',
+      d: `M ${cx-4} ${cy} C ${cx-40} ${cy-30}, ${cx-46} ${cy+18}, ${cx-6} ${cy+6} Z`,
+      style: `fill:var(--ribbon); animation-delay:0.65s;`
+    });
+    const loopR = el('path', {
+      class: 'ribbon-part',
+      d: `M ${cx+4} ${cy} C ${cx+40} ${cy-30}, ${cx+46} ${cy+18}, ${cx+6} ${cy+6} Z`,
+      style: `fill:var(--ribbon); animation-delay:0.7s;`
+    });
+    const knot = el('circle', {
+      class: 'ribbon-part',
+      cx: cx, cy: cy, r: 9,
+      style: `fill:var(--ribbon-dark); animation-delay:0.8s;`
+    });
+    const tailL = el('path', {
+      class: 'ribbon-part',
+      d: `M ${cx-5} ${cy+8} L ${cx-16} ${cy+40} L ${cx-4} ${cy+34} Z`,
+      style: `fill:var(--ribbon); animation-delay:0.85s;`
+    });
+    const tailR = el('path', {
+      class: 'ribbon-part',
+      d: `M ${cx+5} ${cy+8} L ${cx+16} ${cy+40} L ${cx+4} ${cy+34} Z`,
+      style: `fill:var(--ribbon); animation-delay:0.9s;`
+    });
+    [loopL, loopR, band, knot, tailL, tailR].forEach(n=>g.appendChild(n));
+  }
+
+  function buildAll(){
+    document.getElementById('hearts').innerHTML = '';
+    heartTimers.forEach(t=>clearTimeout(t));
+    heartTimers.length = 0;
+
+    buildPaper();
+    buildFoliage();
+
+    const wrapPoint = [260, 335];
+
+    buildFlower('flower1', {
+      startX: wrapPoint[0], startY: wrapPoint[1], cx: 130, headY: 150, scale: 0.62,
+      colors: ['var(--peach-1)','var(--peach-2)','var(--peach-3)'],
+      stemColor: 'var(--stem-dark)', delayBase: 0.3,
+      petalCount: {outer:7, inner:6, core:5},
+      sparkles: [[-30,-8],[26,-18]],
+      swayDelay: 4.0, swayDur: 4.8
+    });
+
+    buildFlower('flower2', {
+      startX: wrapPoint[0], startY: wrapPoint[1], cx: 200, headY: 190, scale: 0.85,
+      colors: ['var(--rose-1)','var(--rose-2)','var(--rose-3)'],
+      stemColor: 'var(--stem)', delayBase: 0.55,
+      petalCount: {outer:8, inner:7, core:5},
+      sparkles: [[-34,-10],[30,-22]],
+      swayDelay: 4.15, swayDur: 4.3
+    });
+
+    buildFlower('flower3', {
+      startX: wrapPoint[0], startY: wrapPoint[1], cx: 260, headY: 95, scale: 1.05,
+      colors: ['var(--pink-1)','var(--pink-2)','var(--pink-3)'],
+      stemColor: 'var(--stem)', delayBase: 0.85,
+      petalCount: {outer:9, inner:8, core:6},
+      sparkles: [[-46,-14],[44,-14],[0,-52]],
+      swayDelay: 4.3, swayDur: 5.0
+    });
+
+    buildFlower('flower4', {
+      startX: wrapPoint[0], startY: wrapPoint[1], cx: 320, headY: 190, scale: 0.85,
+      colors: ['var(--lilac-1)','var(--lilac-2)','var(--lilac-3)'],
+      stemColor: 'var(--stem)', delayBase: 1.15,
+      petalCount: {outer:8, inner:7, core:5},
+      sparkles: [[34,-10],[-30,-22]],
+      swayDelay: 4.45, swayDur: 4.6
+    });
+
+    buildFlower('flower5', {
+      startX: wrapPoint[0], startY: wrapPoint[1], cx: 390, headY: 150, scale: 0.62,
+      colors: ['var(--cream-1)','var(--cream-2)','var(--cream-3)'],
+      stemColor: 'var(--stem-dark)', delayBase: 1.4,
+      petalCount: {outer:7, inner:6, core:5},
+      sparkles: [[30,-8],[-26,-18]],
+      swayDelay: 4.6, swayDur: 4.9
+    });
+
+    buildRibbon();
+
+    function spawnHeart(){
+      const heartsG = document.getElementById('hearts');
+      const h = el('path', {
+        class: 'heart',
+        d: `M 260 78 c -6 -8, -18 -8, -18 2 c 0 8, 10 14, 18 22 c 8 -8, 18 -14, 18 -22 c 0 -10, -12 -10, -18 -2 Z`,
+        style: `fill:var(--pink-3);`
+      });
+      heartsG.appendChild(h);
+      const rm = setTimeout(()=>h.remove(), 2900);
+      heartTimers.push(rm);
+    }
+    const firstHeart = setTimeout(function loopHearts(){
+      spawnHeart();
+      const t = setTimeout(loopHearts, 2600 + Math.random()*900);
+      heartTimers.push(t);
+    }, 3200);
+    heartTimers.push(firstHeart);
+  }
+
+  function resetAnim(el){
+    el.style.animation = 'none';
+    void el.offsetWidth;
+    el.style.animation = '';
+  }
+
+  function playAll(){
+    buildAll();
+    document.querySelectorAll('.message, .replay').forEach(resetAnim);
+  }
+
+  function spawnFallingPetals(){
+    const layer = document.getElementById('petalFallLayer');
+    layer.innerHTML = '';
+    const colorVars = ['--pink-2','--rose-2','--peach-2','--lilac-2'];
+    for(let i=0;i<20;i++){
+      const p = document.createElement('div');
+      p.className = 'petal-fall';
+      const left = Math.random()*100;
+      const dur = 9 + Math.random()*7;
+      const swayDur = 3 + Math.random()*2;
+      const delay = Math.random()*10;
+      const size = 6 + Math.random()*8;
+      p.style.left = left + 'vw';
+      p.style.width = size + 'px';
+      p.style.height = size + 'px';
+      p.style.background = `var(${colorVars[i % colorVars.length]})`;
+      p.style.animationDuration = `${dur}s, ${swayDur}s`;
+      p.style.animationDelay = `${delay}s, ${delay}s`;
+      layer.appendChild(p);
+    }
+  }
+
+  function spawnTwinkles(){
+    const layer = document.getElementById('twinkleLayer');
+    layer.innerHTML = '';
+    for(let i=0;i<16;i++){
+      const t = document.createElement('div');
+      t.className = 'twinkle';
+      const size = 2 + Math.random()*3;
+      t.style.width = size + 'px';
+      t.style.height = size + 'px';
+      t.style.left = (Math.random()*100) + 'vw';
+      t.style.top = (Math.random()*100) + 'vh';
+      t.style.animationDuration = (2 + Math.random()*3) + 's';
+      t.style.animationDelay = (Math.random()*4) + 's';
+      layer.appendChild(t);
+    }
+  }
+
+  playAll();
+  spawnFallingPetals();
+  spawnTwinkles();
+  document.getElementById('replayBtn').addEventListener('click', playAll);
+})();
+</script>
+</body>
+</html>
